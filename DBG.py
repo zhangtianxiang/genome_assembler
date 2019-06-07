@@ -63,7 +63,7 @@ def generate_graph(param, data_parts):
         assert u != v  # 在选取SEGLEN时不应该产生自环
         pre = out_edges[u][v]
         out_edges[u].update([v])
-        if pre == 0:  # 阈值
+        if pre == 2:  # 阈值
             g[u].append(v)
             ind[v] += 1
             outd[u] += 1
@@ -183,7 +183,7 @@ def run(param, long_data, short_1_data, short_2_data):
     print('processing', param.get('name'))
     assert len(short_1_data) == len(short_2_data)
     seg_to_point, point_to_seg, out_edges, g, rg, ind, outd = generate_graph(
-        param, [short_1_data, short_2_data])
+        param, [short_1_data, short_2_data, long_data])
     print('Total points:', total_point)
     print('Total edges:', total_edge)
     belong, sz = get_SCC(g)  # 得到所有的强联通分量
