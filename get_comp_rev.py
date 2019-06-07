@@ -36,6 +36,6 @@ def save_fasta(filename, content):
             f.write(data['s']+'\n')
 
 
-fa = prepare_fasta_data('data3/contig.fasta')
+fa = prepare_fasta_data('data1/contigfixed.fasta')
 fa_c = get_comp_rev_data(fa)
-save_fasta('data3/contigfixed.fasta',fa_c)
+save_fasta('data1/contigfixed2.fasta',fa_c)

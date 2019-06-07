@@ -93,7 +93,7 @@ def try_merge(A, B, off):
         A, B = B, A
         off = -off
     common = min(len(A)-off,len(B))
-    if common <= 10:  # Threshold
+    if common <= 20:  # Threshold
         return res
     error_rate = leve.hamming(A[off:off+common], B[:common])/common
     if error_rate > 0.5:  # Threshold
