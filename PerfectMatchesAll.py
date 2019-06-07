@@ -16,12 +16,15 @@ DEFAULT_SHORT_2_FILE = 'short_2.fasta'
 DEFAULT_FIXED_LONG_FILE = 'fixed_long.fasta'
 DEFAULT_MATCHES_FILE = 'matches.json'
 
+PROGRESS_FILE = 'progress.json'
+
 ARGS = None
-PROGRESS = {
+DEFAULT_PROGRESS = {
     "now_part": 1,
     "now_done": 0,
     "total_done": 0
 }
+PROGRESS = DEFAULT_PROGRESS
 PARAM = {}
 
 MAXDIS = 21
@@ -29,7 +32,7 @@ PART_ID = 0
 
 
 def parse_args():
-    global ARGS
+    global ARGS, PROGRESS_FILE
     parser = argparse.ArgumentParser()
     parser.add_argument('DATA_DIR', type=str, help='the dataset\'s directory')
     parser.add_argument('-fl', '--FIXED_LONG_FILE', type=str,
@@ -51,6 +54,7 @@ def parse_args():
     ARGS.SHORT_2_FILE = os.path.join(ARGS.DATA_DIR, ARGS.SHORT_2_FILE)
     ARGS.FIXED_LONG_FILE = os.path.join(ARGS.DATA_DIR, ARGS.FIXED_LONG_FILE)
     ARGS.MATCHES_FILE = os.path.join(ARGS.DATA_DIR, ARGS.MATCHES_FILE)
+    PROGRESS_FILE = os.path.join(ARGS.DATA_DIR, PROGRESS_FILE)
 
 
 def prepare_fasta_data(filename):
@@ -212,7 +216,7 @@ def save_all_and_update_progress(fixed_data, match_info):
         f.write(json.dumps(match_info)+',\n')
     PROGRESS['now_done'] += 1
     PROGRESS['total_done'] += 1
-    with open('PROGRESS.json', 'w') as f:
+    with open(PROGRESS_FILE, 'w') as f:
         f.write(json.dumps(PROGRESS))
 
 
@@ -278,11 +282,15 @@ if __name__ == "__main__":
     MAXDIS = math.floor(PARAM['short_read_length'] *
                         (PARAM['short_read_error_rate']+PARAM['long_read_error_rate'])+5)
     # load PROGRESS
-    with open('PROGRESS.json', 'r') as f:
-        pre = json.loads(f.read())
-        if isinstance(pre, dict):
-            for k, v in PROGRESS.items():
-                PROGRESS[k] = pre.get(k, v)
+    try:
+        with open(PROGRESS_FILE, 'r') as f:
+            pre = json.loads(f.read())
+            if isinstance(pre, dict):
+                for k, v in PROGRESS.items():
+                    PROGRESS[k] = pre.get(k, v)
+    except:
+        print('Create progress.json')
+        PROGRESS = DEFAULT_PROGRESS
     # fix files
     fix_data()
     # begin fix

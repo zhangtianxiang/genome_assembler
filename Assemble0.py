@@ -3,10 +3,11 @@
 已有修复后的长传fixed_long.fasta和匹配信息matches.json
 每个长串匹配了众多小串
 长串做为A类点，小串作为B类点
+则A B点之间建边为距离
 
-B类点两两之间通过A类点计算偏置的众数和总连接数
-最终每个B类点两两之间存在边，有总连接数，偏置众数和数量
-以偏置众数为第一关键字，总连接数为第二关键字，求最小生成树？或生成链
+1. 找到最小的AB距离，记录A为C
+2. 不断将C上距离最小的B找出，然后找到B所在的长串与C拼接
+3. 最终输出C
 '''
 import argparse
 import os
@@ -17,7 +18,6 @@ import json
 import sys
 import math
 import heapq
-import numpy as np
 
 sys.setrecursionlimit(90000)
 
@@ -27,22 +27,23 @@ DEFAULT_SHORT_1_FILE = 'short_1.fasta'
 DEFAULT_SHORT_2_FILE = 'short_2.fasta'
 DEFAULT_FIXED_LONG_FILE = 'fixed_long.fasta'
 DEFAULT_MATCHES_FILE = 'matches.json'
-DEFAULT_ANS_FILE = 'contig.fasta'
 
 ARGS = None
+PROGRESS = {
+    "now_part": 1,
+    "now_done": 0,
+    "total_done": 0
+}
 PARAM = {}
 
 MAXDIS = 0
-
-MINCNT = 0
+PART_ID = 0
 
 
 def parse_args():
     global ARGS
     parser = argparse.ArgumentParser()
     parser.add_argument('DATA_DIR', type=str, help='the dataset\'s directory')
-    parser.add_argument('-a', '--ANS_FILE', type=str,
-                        default=DEFAULT_ANS_FILE, help='ans data file\'s name')
     parser.add_argument('-fl', '--FIXED_LONG_FILE', type=str,
                         default=DEFAULT_FIXED_LONG_FILE, help='fixed long data file\'s name')
     parser.add_argument('-m', '--MATCHES_FILE', type=str,
@@ -62,7 +63,6 @@ def parse_args():
     ARGS.SHORT_2_FILE = os.path.join(ARGS.DATA_DIR, ARGS.SHORT_2_FILE)
     ARGS.FIXED_LONG_FILE = os.path.join(ARGS.DATA_DIR, ARGS.FIXED_LONG_FILE)
     ARGS.MATCHES_FILE = os.path.join(ARGS.DATA_DIR, ARGS.MATCHES_FILE)
-    ARGS.ANS_FILE = os.path.join(ARGS.DATA_DIR, ARGS.ANS_FILE)
 
 
 def prepare_fasta_data(filename):
@@ -85,21 +85,6 @@ def get_comp_rev_data(content):
         'name': data['name']+'(comp_rev)',
         's': ''.join([tran[c] for c in data['s']][::-1])
     } for data in content]
-
-
-def try_merge(A, B, off):
-    res = ''
-    if off < 0:
-        A, B = B, A
-        off = -off
-    common = min(len(A)-off,len(B))
-    if common <= 10:  # Threshold
-        return res
-    error_rate = leve.hamming(A[off:off+common], B[:common])/common
-    if error_rate > 0.5:  # Threshold
-        return res
-    res = A[:off]+B
-    return res
 
 
 if __name__ == "__main__":
@@ -152,6 +137,8 @@ if __name__ == "__main__":
     Bpoint_to_name = []
     Bpoint_to_data = []
 
+    record_checked_A = []
+    record_checked_B = []
     A_out_edges = []
     B_out_edges = []
 
@@ -163,6 +150,7 @@ if __name__ == "__main__":
             Bpoint_to_name.append(short_name)
             Bpoint_to_data.append({'name': short_name, 's': short})
             B_out_edges.append([])
+            record_checked_B.append(False)
         return sid
 
     def encode_edge(A, B, dis, pos):
@@ -182,102 +170,41 @@ if __name__ == "__main__":
         name_to_Apoint[long_data['name']] = len(Apoint_to_name)
         Apoint_to_name.append(long_data['name'])
         A_out_edges.append([])
+        record_checked_A.append(False)
 
     # generate B point and add edges
     print('Generate B point and build graph')
     for i, match_info in enumerate(tqdm(match_infoset)):
-        for match in match_info:
-            short_name = match['name']
-            short = match['s']
-            sid = get_id(short_name, short)
-            add_edge(i, sid, match['dis'], match['pos'])
+        short_name = match_info['name']
+        short = match_info['s']
+        sid = get_id(short_name, short)
+        add_edge(i, sid, match_info['dis'], match_info['pos'])
 
-    # build Apoint graph
-    offset = np.zeros((len(Apoint_to_name), len(Apoint_to_name)), dtype=int)
-    count = np.zeros((len(Apoint_to_name), len(Apoint_to_name)), dtype=int)
-    final_edges = []  # count,offset,u,v
-    for u in range(len(Apoint_to_name)):
-        A_out_edges[u] = sorted(
-            A_out_edges[u], key=lambda x: x[3])  # sort by B
-    print('Build final graph')
-    for u in tqdm(range(len(Apoint_to_name))):
-        u_out_edges = A_out_edges[u]
-        for v in range(u+1, len(Apoint_to_name)):
-            v_out_edges = A_out_edges[v]
-            counter = Counter()
-            j = 0
-            for i, edge in enumerate(u_out_edges):
-                while j < len(v_out_edges) and v_out_edges[j][3] < edge[3]:
-                    j += 1
-                # same B
-                if j < len(v_out_edges) and v_out_edges[j][3] == edge[3]:
-                    # pos u - pos v
-                    counter.update(Counter([edge[1]-v_out_edges[j][1]]))
-            item = counter.most_common(1)
-            if len(item) == 0:  # not match totally
-                pass
-            else:
-                item = item[0]
-                offset[u][v] = item[0]  # offset
-                count[u][v] = item[1]  # count
-                if count[u][v] > MINCNT:
-                    final_edges.append((item[1], item[0], u, v))
     # generate final DNA!
-    print('Generate final DNA')
-    final_edges = sorted(final_edges, key=lambda x: x[0], reverse=True)
-    print('Total edge', len(final_edges))
-    fa = [-1 for i in range(len(Apoint_to_name))]
-    off_to_fa_val = [0 for i in range(len(Apoint_to_name))]
-    val = [long_data['s'] for long_data in fixed_dataset]
-
-    def get_fa_and_update_off(u):
-        if fa[u] == -1:
-            return u
-        else:  # update
-            fafa = get_fa_and_update_off(fa[u])
-            if fa[u] == fafa:
-                return fa[u]
-            off_to_fa_val[u] += off_to_fa_val[fa[u]]
-            fa[u] = fafa
-            return fafa
-
-    # with open('tmp.fasta', 'w') as f:
-    #     edge = final_edges[1000]
-    #     cnt, off, u, v = edge
-    #     print(edge)
-    #     if off < 0:
-    #         u, v = v, u
-    #         off = -off
-    #     f.write(val[u]+'\n')
-    #     f.write(' '*off+val[v])
-
-    for edge in tqdm(final_edges):
-        cnt, off, u, v = edge
-        fu = get_fa_and_update_off(u)
-        fv = get_fa_and_update_off(v)
-        if fu == fv:
-            continue
-        nowoff = off_to_fa_val[u]+off-off_to_fa_val[v]
-        res = try_merge(val[fu], val[fv], nowoff)
-        if res == '':  # merge failed
-            continue
-        if nowoff > 0:  # fu on left, fu is new father
-            fa[fv] = fu
-            off_to_fa_val[fv] = nowoff
-            val[fu] = res
-            val[fv] = None
-        else:  # fv on left, fv is new father
-            fa[fu] = fv
-            off_to_fa_val[fu] = -nowoff
-            val[fv] = res
-            val[fu] = None
+    def generate(start_Apoint):
+        g = Apoint_to_data[start_Apoint]['s']
+        record_checked_A[start_Apoint] = True
+        h = []
+        for edge in A_out_edges:
+            A, B, dis, pos = decode_edge(edge)
+            if record_checked_B[dis] == False:
+                h.append(edge)
+        heapq.heapify(h)
+        offset = 0  # position 's offset
+        while True:
+            if len(h) == 0:
+                break
+            # A => mindis B
+            A, B, dis, pos = decode_edge(heapq.heappop(h))
+            if record_checked_B[B]:
+                continue
+            # merge all A (which B belongs to) to g, and update a
+            for edge in B_out_edges[B]:
+                A2, _, _, pos2 = decode_edge(edge)
+                # try merge A2
 
     ans = []
-    for u in tqdm(range(len(Apoint_to_name))):
-        if get_fa_and_update_off(u) == u:
-            ans.append(val[u])
-    ans = sorted(ans, key=lambda x: len(x), reverse=True)[:15]
-    with open(ARGS.ANS_FILE, 'w') as f:
-        for i, s in enumerate(ans):
-            print('{:3d} length: {:d}'.format(i, len(s)))
-            f.write('>ans_{0}/1\n{1}\n'.format(i, s))
+    print('Final assemble')
+    for i, long_data in enumerate(tqdm(fixed_dataset)):
+        if record_checked_A[i] == False:
+            ans.append(generate(i))
