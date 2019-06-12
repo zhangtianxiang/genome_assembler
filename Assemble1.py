@@ -92,7 +92,7 @@ def try_merge(A, B, off):
     if off < 0:
         A, B = B, A
         off = -off
-    common = min(len(A)-off,len(B))
+    common = min(len(A)-off, len(B))
     if common <= 10:  # Threshold
         return res
     error_rate = leve.hamming(A[off:off+common], B[:common])/common
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     def encode_edge(A, B, dis, pos):
         return (dis, pos, A, B)  # 以元组存储便于比较，dis为第一关键字，pos为第二关键字
 
-    def decode_edge(edge): # return dis, pos, A, B
+    def decode_edge(edge):  # return dis, pos, A, B
         return edge[2], edge[3], edge[0], edge[1]
 
     def add_edge(A, B, dis, pos):
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     print('Build final graph')
     for u in tqdm(range(len(Apoint_to_name))):
         u_out_edges = A_out_edges[u]
-        for v in range(u+1, len(Apoint_to_name)):
+        for v in range(u+1, len(Apoint_to_name)):  # 多个 B ？需要枚举B？
             v_out_edges = A_out_edges[v]
             counter = Counter()
             j = 0
@@ -212,9 +212,11 @@ if __name__ == "__main__":
                 while j < len(v_out_edges) and v_out_edges[j][3] < edge[3]:
                     j += 1
                 # same B
-                if j < len(v_out_edges) and v_out_edges[j][3] == edge[3]:
+                k = j
+                while k < len(v_out_edges) and v_out_edges[k][3] == edge[3]:
                     # pos u - pos v
-                    counter.update(Counter([edge[1]-v_out_edges[j][1]]))
+                    counter.update(Counter([edge[1]-v_out_edges[k][1]]))
+                    k += 1
             item = counter.most_common(1)
             if len(item) == 0:  # not match totally
                 pass
