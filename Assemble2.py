@@ -7,6 +7,17 @@
 B类点两两之间通过A类点计算偏置的众数和总连接数
 最终每个B类点两两之间存在边，有总连接数，偏置众数和数量
 以偏置众数为第一关键字，总连接数为第二关键字，求最小生成树？或生成链
+
+众数边求最小生成树gg了
+其他方法？
+
+枚举每一条长串为起点，维护一个短串的集合和一个长串的集合，不断选择一个短串，将其匹配的所有长串拼合进来
+
+直到不能进行，最后投票表决每个位置的字符。
+
+短串用堆选dis最小的一个
+
+正确性依赖于短串匹配到长串上错误率很低，可以确信短串一定匹配在长串上
 '''
 import argparse
 import os
@@ -18,6 +29,7 @@ import sys
 import math
 import heapq
 import numpy as np
+import heapq
 
 sys.setrecursionlimit(90000)
 
@@ -27,7 +39,7 @@ DEFAULT_SHORT_1_FILE = 'short_1.fasta'
 DEFAULT_SHORT_2_FILE = 'short_2.fasta'
 DEFAULT_FIXED_LONG_FILE = 'fixed_long.fasta'
 DEFAULT_MATCHES_FILE = 'matches.json'
-DEFAULT_ANS_FILE = 'contig_v1.fasta'
+DEFAULT_ANS_FILE = 'v2contig.fasta'
 
 ARGS = None
 PARAM = {}
@@ -86,62 +98,15 @@ def get_comp_rev_data(content):
         's': ''.join([tran[c] for c in data['s']][::-1])
     } for data in content]
 
-
-def try_merge(A, B, off):
-    res = ''
-    if off < 0:
-        A, B = B, A
-        off = -off
-    common = min(len(A)-off, len(B))
-    if common <= 10:  # Threshold
-        return res
-    error_rate = leve.hamming(A[off:off+common], B[:common])/common
-    if error_rate > 0.5:  # Threshold
-        return res
-    res = A[:off]+B
-    return res
-
-
 if __name__ == "__main__":
-    '''
-    long_dna = xxx
-    long_data = {
-        'name': XXX
-        's': long_dna
-    }
-    long_dataset = [long_data]
-    long_datasets = [long_dataset]
-
-    match = {
-        'name': XXX
-        'pos': x
-        'dis': x
-                's': short_dna
-    }
-    match_info = [match]
-    match_infoset = [match_info]
-    match_infosets = [match_infoset]
-    '''
     # load ARGS
     parse_args()
     # load data
-    with open(ARGS.PARAM_FILE, 'r') as f:
-        PARAM = json.loads(f.read())
-    fs1 = prepare_fasta_data(ARGS.SHORT_1_FILE)
-    fs2 = prepare_fasta_data(ARGS.SHORT_2_FILE)
-    fl = prepare_fasta_data(ARGS.LONG_FILE)
-    fs1_rev = get_comp_rev_data(fs1)
-    fs2_rev = get_comp_rev_data(fs2)
-    fl_rev = get_comp_rev_data(fl)
 
     fixed_dataset = prepare_fasta_data(ARGS.FIXED_LONG_FILE)
     match_infoset = {}
     with open(ARGS.MATCHES_FILE, 'r') as f:
         match_infoset = json.loads('['+f.read().strip('\n')[:-1]+']')
-
-    # update threhold
-    MAXDIS = math.floor(PARAM['short_read_length'] *
-                        (PARAM['short_read_error_rate']+PARAM['long_read_error_rate'])+5)
 
     # map_point
     name_to_Apoint = {}
@@ -168,7 +133,7 @@ if __name__ == "__main__":
     def encode_edge(A, B, dis, pos):
         return (dis, pos, A, B)  # 以元组存储便于比较，dis为第一关键字，pos为第二关键字
 
-    def decode_edge(edge):  # return dis, pos, A, B
+    def decode_edge(edge):  # return A, B, dis, pos
         return edge[2], edge[3], edge[0], edge[1]
 
     def add_edge(A, B, dis, pos):
@@ -183,7 +148,8 @@ if __name__ == "__main__":
         Apoint_to_name.append(long_data['name'])
         A_out_edges.append([])
 
-    print('total A', len(name_to_Apoint))
+    total_A = len(Apoint_to_name)
+    print('total A', total_A)
 
     # generate B point and add edges
     print('Generate B point and build graph')
@@ -193,94 +159,72 @@ if __name__ == "__main__":
             short = match['s']
             sid = get_id(short_name, short)
             add_edge(i, sid, match['dis'], match['pos'])
+    total_B = len(Bpoint_to_name)
+    print('total B', total_B)
 
-    # build Apoint graph
-    offset = np.zeros((len(Apoint_to_name), len(Apoint_to_name)), dtype=int)
-    count = np.zeros((len(Apoint_to_name), len(Apoint_to_name)), dtype=int)
-    final_edges = []  # count,offset,u,v
-    for u in range(len(Apoint_to_name)):
-        A_out_edges[u] = sorted(
-            A_out_edges[u], key=lambda x: x[3])  # sort by (B, )
-    print('Build final graph')
-    for u in tqdm(range(len(Apoint_to_name))):
-        u_out_edges = A_out_edges[u]
-        for v in range(u+1, len(Apoint_to_name)):  # 多个 B ？需要枚举B？
-            v_out_edges = A_out_edges[v]
-            counter = Counter()
-            j = 0
-            for i, edge in enumerate(u_out_edges):
-                while j < len(v_out_edges) and v_out_edges[j][3] < edge[3]:
-                    j += 1
-                # same B
-                k = j
-                while k < len(v_out_edges) and v_out_edges[k][3] == edge[3]:
-                    # pos u - pos v
-                    counter.update(Counter([edge[1]-v_out_edges[k][1]]))
-                    k += 1
-            item = counter.most_common(1)
-            if len(item) == 0:  # not match totally
-                pass
-            else:
-                item = item[0]
-                offset[u][v] = item[0]  # offset
-                count[u][v] = item[1]  # count
-                if count[u][v] > MINCNT:
-                    final_edges.append((item[1], item[0], u, v))
-    # generate final DNA!
-    print('Generate final DNA')
-    final_edges = sorted(final_edges, key=lambda x: x[0], reverse=True)
-    print('Total edge', len(final_edges))
-    fa = [-1 for i in range(len(Apoint_to_name))]
-    off_to_fa_val = [0 for i in range(len(Apoint_to_name))]
-    val = [long_data['s'] for long_data in fixed_dataset]
-
-    def get_fa_and_update_off(u):
-        if fa[u] == -1:
-            return u
-        else:  # update
-            fafa = get_fa_and_update_off(fa[u])
-            if fa[u] == fafa:
-                return fa[u]
-            off_to_fa_val[u] += off_to_fa_val[fa[u]]
-            fa[u] = fafa
-            return fafa
-
-    # with open('tmp.fasta', 'w') as f:
-    #     edge = final_edges[1000]
-    #     cnt, off, u, v = edge
-    #     print(edge)
-    #     if off < 0:
-    #         u, v = v, u
-    #         off = -off
-    #     f.write(val[u]+'\n')
-    #     f.write(' '*off+val[v])
-
-    for edge in tqdm(final_edges):
-        cnt, off, u, v = edge
-        fu = get_fa_and_update_off(u)
-        fv = get_fa_and_update_off(v)
-        if fu == fv:
-            continue
-        nowoff = off_to_fa_val[u]+off-off_to_fa_val[v]
-        res = try_merge(val[fu], val[fv], nowoff)
-        if res == '':  # merge failed
-            continue
-        if nowoff > 0:  # fu on left, fu is new father
-            fa[fv] = fu
-            off_to_fa_val[fv] = nowoff
-            val[fu] = res
-            val[fv] = None
-        else:  # fv on left, fv is new father
-            fa[fu] = fv
-            off_to_fa_val[fu] = -nowoff
-            val[fv] = res
-            val[fu] = None
-
+    # sort all out edges by distance
+    for u in range(total_A):
+        A_out_edges[u] = sorted(A_out_edges[u], key=lambda x: x[2]) # sort by dis
+    
+    for u in range(total_B):
+        B_out_edges[u] = sorted(B_out_edges[u], key=lambda x: x[2]) # sort by dis
+    
+    print('Try directly connect')
+    visited_A = np.zeros(total_A, dtype=bool)
+    offset = np.zeros(total_A, dtype=int)
     ans = []
-    for u in tqdm(range(len(Apoint_to_name))):
-        if get_fa_and_update_off(u) == u:
-            ans.append(val[u])
-    ans = sorted(ans, key=lambda x: len(x), reverse=True)[:15]
+    for st in tqdm(range(total_A)):
+        if visited_A[st]:
+            continue
+        now_A_set = []
+        # now_B_set = []
+        now_B_set = A_out_edges[st].copy() # (dis, pos, A, B)
+        heapq.heapify(now_B_set)
+        visited_A[st] = True
+        visited_B = np.zeros(total_B, dtype=bool)
+        offset[st] = 0
+        now_A_set.append((0,st))
+        while len(now_B_set) > 0:
+            edge = heapq.heappop(now_B_set)
+            A, B, dis, pos = decode_edge(edge)
+            if visited_B[B]:
+                continue
+            visited_B[B] = True
+            for e_to_A in B_out_edges[B]:
+                A2, _, dis2, pos2 = decode_edge(e_to_A)
+                if visited_A[A2]:
+                    continue
+                visited_A[A2] = True
+                offset_A2_to_A = pos - pos2
+                offset[A2] = offset[A]+offset_A2_to_A
+                now_A_set.append((offset[A2], A2))
+                for e_to_B in A_out_edges[A2]:
+                    if visited_B[e_to_B[3]] == False: # B
+                        heapq.heappush(now_B_set,e_to_B)
+        # vote
+        now_A_set = sorted(now_A_set) # sort by offset
+        common_offset = now_A_set[0][0]
+        now_A_set = [(x[0]-common_offset, x[1]) for x in now_A_set]
+        # now_A_set = [map(lambda x: (x[0]-common_offset, x[1]), now_A_set)]
+        length = now_A_set[-1][0]+1000 # this time length
+        now_set = []
+        p = 0
+        res = ''
+        # print('length', length)
+        for i in range(length):
+            while p < len(now_A_set) and now_A_set[p][0] <= i:
+                now_set.append(now_A_set[p])
+                p += 1
+            while len(now_set) > 0 and now_set[0][0]+1000 <= i:
+                now_set.pop(0)
+            assert len(now_set) > 0
+            voter = Counter()
+            for off, A in now_set:
+                voter.update(Apoint_to_data[A]['s'][i-off])
+            res += voter.most_common(1)[0][0]
+        ans.append(res)
+
+    ans = sorted(ans, key=lambda x: len(x), reverse=True)
     with open(ARGS.ANS_FILE, 'w') as f:
         for i, s in enumerate(ans):
             print('{:3d} length: {:d}'.format(i, len(s)))
