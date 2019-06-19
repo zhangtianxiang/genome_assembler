@@ -24,7 +24,7 @@ DEFAULT_FIXED_LONG_FILE = 'fixed_long.fasta'
 DEFAULT_EXTEND_FILE = 'extend_ans.fasta'
 
 ARGS = None
-DNALEN = 50
+DNALEN = 30
 
 
 def parse_args():

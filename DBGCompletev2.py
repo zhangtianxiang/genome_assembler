@@ -22,8 +22,8 @@ DEFAULT_PARAM_FILE = 'param.json'
 DEFAULT_LONG_FILE = 'long.fasta'
 DEFAULT_SHORT_1_FILE = 'short_1.fasta'
 DEFAULT_SHORT_2_FILE = 'short_2.fasta'
-DEFAULT_FIXED_LONG_FILE = 'fixed_long.fasta'
-DEFAULT_EXTEND_FILE = 'extend_ans_v2_1.fasta'
+DEFAULT_FIXED_LONG_FILE = 'long_repair.fasta' # 'fixed_long.fasta' # use repair
+DEFAULT_EXTEND_FILE = 'extend_ans_v2_repair_17w.fasta'
 
 ARGS = None
 DNALEN = 30
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     # extend all ans
     def extend_tail(dna):
         # 向后extend
-        TRY_STEP = 200
+        TRY_STEP = 87
         assert len(dna) >= DNALEN
         step = min(TRY_STEP, len(dna)-DNALEN+1)
         max_ext = 0

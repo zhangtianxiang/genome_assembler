@@ -75,9 +75,9 @@ DEFAULT_PARAM_FILE = 'param.json'
 DEFAULT_LONG_FILE = 'long.fasta'
 DEFAULT_SHORT_1_FILE = 'short_1.fasta'
 DEFAULT_SHORT_2_FILE = 'short_2.fasta'
-DEFAULT_FIXED_LONG_FILE = 'fixed_long.fasta'
-DEFAULT_MATCHES_FILE = 'matches.json'
-DEFAULT_ANS_FILE = 'v3contig.fasta'
+DEFAULT_FIXED_LONG_FILE = 'long_repair.fasta' # MatchesFixed
+DEFAULT_MATCHES_FILE = 'matches_repair.json' # MatchesFixed
+DEFAULT_ANS_FILE = 'v3contig_repair.fasta' # MatchesFixed
 
 ARGS = None
 
@@ -238,8 +238,8 @@ if __name__ == "__main__":
         while len(now_B_set) > 0:
             edge = heapq.heappop(now_B_set)
             A, B, dis, pos = decode_edge(edge)
-            if dis >= MINDIS: # 为dis增加阈值
-                continue
+            # if dis >= MINDIS: # 为dis增加阈值
+            #     continue
             if visited_B[B]:
                 continue
             visited_B[B] = True
@@ -249,8 +249,8 @@ if __name__ == "__main__":
                     continue
                 # 对A与A2公共部分错误率设定阈值
                 offset_A2_to_A = pos - pos2
-                if can_merge(Apoint_to_data[A]['s'],Apoint_to_data[A2]['s'],offset_A2_to_A) == False:
-                    continue
+                # if can_merge(Apoint_to_data[A]['s'],Apoint_to_data[A2]['s'],offset_A2_to_A) == False:
+                #     continue
                 visited_A[A2] = True
                 offset[A2] = offset[A]+offset_A2_to_A
                 now_A_set.append((offset[A2], A2))

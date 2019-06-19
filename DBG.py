@@ -7,7 +7,12 @@ from collections import Counter, deque
 from tqdm import tqdm
 
 sys.setrecursionlimit(90000)
-SEGLEN = 50
+SEGLEN = 30
+EPOCH = 20
+ANS_FILE = 'data1/contig_dbg.fasta'
+FL_FILE = 'data1/fixed_long.fasta'
+S1_FILE = 'data1/short_1.fasta'
+S2_FILE = 'data1/short_2.fasta'
 
 
 class MyVariable:
@@ -194,14 +199,33 @@ def run(param, long_data, short_1_data, short_2_data):
     '''
     tmpg = g.copy()
     tmpind = ind.copy()
-    epoch = 10
+    epoch = EPOCH
     ans = []
     for i in range(epoch):
         seq, tmpg, tmpind = get_max_chain(tmpg, tmpind)
         ans.append(seq)
     
-    with open('contig.fasta','w') as f:
+    with open(ANS_FILE,'w') as f:
         for i in range(epoch):
             f.write('>ans_'+str(i)+'/1\n')
             f.write(seq_to_dna(ans[i], point_to_seg))
             f.write('\n')
+
+
+def prepare_fasta_data(filename):
+    content = []
+    print('Load data', filename)
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+        name = 'Unknown'
+        for i, line in enumerate(tqdm(lines)):
+            if (i & 1) == 0:
+                name = line.strip('\n')
+            else:
+                content.append({'name': name, 's': line.strip('\n')})
+    return content
+
+if __name__ == "__main__":
+    fl = prepare_fasta_data(FL_FILE)
+    s1 = prepare_fasta_data(S1_FILE)
+    s2 = prepare_fasta_data(S2_FILE)

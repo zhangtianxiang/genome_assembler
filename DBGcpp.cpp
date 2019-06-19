@@ -6,7 +6,7 @@ using namespace std;
 
 FILE *f_g, *f_s, *f_r;
 
-int N, maxd = 50000;
+int N, maxd = 90000;
 vector<vector<int> > g;
 vector<bool> visited, visited_back;
 vector<int> maxto, maxto_back;
