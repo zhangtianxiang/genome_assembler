@@ -1,0 +1,666 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{geometry}
+\usepackage{ctex}
+\usepackage{graphicx}
+\usepackage{amsmath}
+% \usepackage{setspace} % 间距宏包
+\usepackage{amssymb}
+\usepackage{indentfirst} %首行缩进
+\usepackage{multirow}
+\usepackage{supertabular}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode,float}
+\usepackage{amsmath}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  % Use Input in the format of Algorithm
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm
+
+\makeatletter
+\newenvironment{breakablealgorithm}
+  {% \begin{breakablealgorithm}
+   \begin{center}
+     \refstepcounter{algorithm}% New algorithm
+     \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+     \renewcommand{\caption}[2][\relax]{% Make a new \caption
+       {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+       \ifx\relax##1\relax % #1 is \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+       \else % #1 is not \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+       \fi
+       \kern2pt\hrule\kern2pt
+     }
+  }{% \end{breakablealgorithm}
+     \kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+   \end{center}
+  }
+\makeatother
+\definecolor{CPPMauve}{rgb}{0.58,0,0.82}
+
+\definecolor{CPPLight}  {HTML} {686868}
+\definecolor{CPPSteel}  {HTML} {888888}
+\definecolor{CPPDark}   {HTML} {262626}
+\definecolor{CPPBlue}   {HTML} {4172A3}
+\definecolor{CPPGreen}  {HTML} {487818}
+\definecolor{CPPBrown}  {HTML} {A07040}
+\definecolor{CPPRed}    {HTML} {AD4D3A}
+\definecolor{CPPViolet} {HTML} {7040A0}
+\definecolor{CPPGray}   {HTML} {B8B8B8}
+\definecolor{CPPOrange} {HTML} {FF6600}
+\definecolor{CPPYellow} {HTML} {FFCC33}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % 背景颜色
+  basicstyle=\scriptsize\ttfamily,        % 字体与大小\scriptsize\small
+  breakatwhitespace=false,         % 只在空白字符换行，但可能一行太长
+  breaklines=true,                 % 自动换行
+  captionpos=b,                    % sets the caption-position to bottom
+  % deletekeywords={...},            % 删除关键词
+  escapeinside={\%*}{*)},          % 代码可以包含LaTex
+  extendedchars=false,              % 使用非ASCII字符 8-bits encodings only, does not work with UTF-8
+  frame=single,	                   % 添加框
+  keepspaces=true,                 % 保存空格用于缩进(可能需要columns=flexible)
+  %language=c++,                 % 语言
+  % morekeywords={*,...},            % 添加关键词
+  morekeywords={continute,friend,register,goto,try,asm,defult,if,return,delete,inline, % red
+    do,typename,break,sizeof,union,case,static,catch,using,else,namespace,new,reinterpret_cast,
+    dynamic_cast,mutable,static_cast,virtual,noexcept,export,switch,volatile,extern,operator,
+    const,while,constexpr,thread_local,const_cast,throw,for,public,private,protected,
+    typeid,alignas,alignof,static_assert},
+  keywordstyle=\color{CPPRed}\bfseries,  % red
+  emph=[2]{auto,typedef,short,bool,int,signed,double,long,unsigned,char,enum,void, %blue
+    char16_t,char32_t,struct,class,template,wchar_t,float,decltype,explict,std},
+  emphstyle=[2]\color{CPPBlue}\bfseries, % blue
+  emph=[3]{true,nullptr,NULL,false}, %purple
+  emph=[4]{this}, % orange
+  emph=[5]{map,set,multimap,multiset,unordered_map,unordered_set, % STL
+    unordered_multiset,unordered_multimap,vector,string,list,deque,
+    array,stack,forwared_list,iostream,memory,shared_ptr,unique_ptr,
+    random,bitset,ostream,istream,cout,cin,endl,move,default_random_engine,
+    uniform_int_distribution,iterator,algorithm,functional,bing,numeric,},
+  emphstyle=[3]\color{CPPMauve}, % pruple
+  emphstyle=[4]\color{CPPOrange}, % orange
+  emphstyle=[5]\color{CPPGreen}, % stl 目前出现了无法加粗的问题。
+  morecomment=[l]{\#},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{CPPGreen}\slshape,    % 注释样式 %slshape
+  morestring=[b]",
+  morestring=[b]',
+  stringstyle=\color{CPPYellow},
+  numbers=left,                    % 行号(none, left, right)
+  numbersep=5pt,                   % 行号距离代码距离
+  numberstyle=\tiny\color{CPPGray}, % 行号样式
+  xleftmargin=10pt, %框左缩进
+%xrightmargin=20pt, %框右缩进
+%framexleftmargin=5pt, %框距离文字左侧缩进
+%rulesep=1pt, %不知道是啥
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % 使用下划线代替展示空格
+  showstringspaces=false,          % 使用下划线代替展示空格（在字符串中）
+  showtabs=false,                  % 使用下划线代替展示tab
+  stepnumber=1,                    % t行号显示间距
+  stringstyle=\color{CPPMauve},     % 字符串样式
+  tabsize=4 	                   % tab的size
+  % title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+
+\newcommand{\PreserveBackslash}[1]{\let\temp=\\#1\let\\=\temp}
+\newcolumntype{C}[1]{>{\PreserveBackslash\centering}p{#1}}
+\newcolumntype{R}[1]{>{\PreserveBackslash\raggedleft}p{#1}}
+\newcolumntype{L}[1]{>{\PreserveBackslash\raggedright}p{#1}}
+
+
+\geometry{left=3.1cm,right=3.1cm,top=2.5cm,bottom=2.5cm} % 页边距
+\setcounter{secnumdepth}{0} % 禁止自动编号
+
+%\author{XXX \\ XXXXXXXXXXX}
+\author{张天翔 \\ 16307130026}
+\date{  \text{ } \\ \text{ } \\ 2019年6月16日}
+\title{“算法设计与分析”期末项目 \\ 宏基因组组装}
+\renewcommand{\contentsname}{目\ \ 录} % 目录名
+
+\begin{document}
+\maketitle % 封面
+
+\newpage
+\tableofcontents % 目录
+
+\linespread{0.9} % 行间距
+
+% 问题 方法 效果 分析 结论
+
+\newpage
+\section{1\ 问题描述与分析}
+
+\subsection{1.1\ 问题描述}
+
+将设计一个宏基因组拼接的算法，输入数据为包含多个物种的测序数据（包含pacbio长序列和illumina短序列），可以使用所有数据进行组装，也可以仅使用其中的部分。输出结果为拼接后得到的长片段。
+衡量拼接结果好坏的依据主要为长度和准确率。 \par
+
+\subsection{1.2\ 问题分析}
+
+这个问题属于De-novo组装问题：在没有参考序列的情况下，仅使用序列片段所提供的资讯来组装。其中De-novo组装又有多种算法，如Overlap - Layout - Consensus（OLC）法，De-Bruijn（DBG）法和贪婪算法（见维基百科 \\
+https://en.wikipedia.org/wiki/Sequence\_assembly）。\par
+
+通过对这些算法进行了解后得知各个算法的特性。OLC法计算序列的重叠是十分精确的，使用了完整的序列信息，结果比较精确，但是运算复杂度较大。而DBG使用了将序列再划分成长度为k的子段并建图的方法，损失了完整序列的信息，但是运算的时间复杂度较低，适用于序列较多的情况。\par
+
+结合以上两种算法以及本次项目中的数据规模与特性，我决定使用类似OLC的方法，并使用DBG法对结果进行补全。具体算法见\textit{解决方法}。\par
+
+\newpage
+\section{2\ 解决方法}
+
+\subsection{2.1\ 步骤一：短序列匹配到长序列}
+
+观察data1至data4，可以发现短序列的正确率要高于长序列。如果直接长序列互相匹配，由于长序列很长且错误率过大，可以预料到结果会很差。而短序列较短，长度是长序列的十分之一（100/1000），所以应该存在很多短序列匹配在长序列上，下面进行一些尝试，看看能否发现一些规律。\par
+
+任意取data1中一条长序列，枚举短序列与长序列进行匹配，找到编辑距离（Levenshtein distance）最小的位置，对距离取一个阈值进行筛选，得到的短序列按照匹配位置排序，再输出，结果如下图：\par
+
+report\_1.png\par
+
+可以发现短序列的覆盖较为均匀，且长序列明显错误较多，短序列中偶尔出现错误，因此长序列这个位置到底是什么可以由匹配了这个位置的所有短序列投票决定，达到对长序列进行修复的目的。同时，通过对匹配结果的观察也可以看出，长序列中基本没有DNA 的增减，只有错误，因此可以将求编辑距离改为求汉明距离（Hamming distance）来表示短序列对长序列的匹配情况。\par
+
+总之，求短序列对长序列的匹配情况是有意义的。首先进行这一步操作，将所有短序列对长序列的匹配信息求出来。\par
+
+时间复杂度为，长序列个数×短序列个数×长序列长度×短序列长度。对于最大的规模的数据data4来说，长序列个数5000×2（反向互补），短序列个数25000×2×2（两端及反向互补），复杂度$10^{14}$ ，因为长序列反向互补序列可以由原始方向对匹配结果取反向互补得到，可以减少一般长序列的个数，复杂度$5\cdot 10^{13}$，按照c++使用CPU运算一秒运算$10^8$的标准来讲，需要139小时，大概6天，开多进程并行运算，最终两天就得到了所有的匹配信息。data1至data3只用了几个小时就得到了匹配信息。这里也可以得知使用汉明距离的优点，汉明距离是$O(n)$的，而编辑距离是$O(n^2)$的DP，时间复杂度将大大增加。\par
+
+算法见代码\textbf{PerfectMatcheseAllMulti.py}，长序列被修补的结果存储至fixe\_long.fasta，短序列匹配到长序列的匹配信息存储在matches.json。需要说明的是matches.json本身格式不是正确的json 格式，将其转为json格式需要删除最末尾的逗号，再在整个文件首尾加上左中括号和右中括号。这样就可以通过json将其转为一个list。\par
+
+前文提到，长序列的反向互补可以由原始方向的匹配结果求出，这个操作由\textbf{extend\_fixed\_long.py}实现，它读入fixed\_long.fasta和matches.json文件，将其扩展后存储到fixed\_long\_extend.fasta和matches\_extend.json中。\par
+
+\subsection{2.2\ 步骤二：根据匹配信息进行序列组装}
+
+已经有了短序列与长序列的匹配信息，多次尝试了如何更好地利用这些信息。\par
+
+\subsubsection{2.2.1\ 尝试一：长序列根据连边数量进行组装}
+
+两个长序列如何拼接到一起，拼接的位置是什么？如果直接修补后的长序列两两之间暴力匹配，复杂度$(5000\cdot 2)^2\cdot 1000^2 = 10^{14}$，这比短序列匹配长序列还要耗费时间。为了利用匹配信息，我采用的方法是，对长序列与短序列编号，所有的长序列，将匹配它的短序列按照短序列编号排序，这样通过两个指针就能快速找到相同标号的短序列。短序列B匹配到长序列A1和A2各有一个位置pos1和pos2，则长序列A2对A1的位移为pos1-pos2，对这个位移求众数信息，便知道了A2对A1最可能的拼接位置。如此得到了所有的可能的边（最多$(5000\cdot 2)^2 = 10^8$）实际上很可能不存在匹配相同的短序列而边数不多。\par
+
+经过上面步骤得到了长序列之间的边，及其权重（众数的大小），下面就是直接对长序列进行拼接，我使用了类似Kruskal的算法，从边权较大的边开始选择，将长序列拼在一起。如果两个长序列在同一个集合中，则忽略这条边，否则进行拼接。\par
+
+其中有个需要解决的问题：拼接后长序列与它属于的集合之中的结果序列的位移是多少？这需要改进并查集算法。我对并查集的修改是，维护长序列与其父亲之间的位移，则它到代表它所在集合的点的位移可通过累积父亲链上的位移。并查集寻找父亲时仍然进行路径压缩，同时维护点到父亲位移。具体看代码Assemble1.py中的get\_fa\_and\_update\_off函数。\par
+
+除了处理位移问题，我还增加了对两个序列是否可以拼接的判断，如果重叠部分错误率达到一定阈值，则不进行拼接，见代码Assemble1.py中的try\_merge函数。\par
+
+全部代码见\textbf{Assemble1.py}。\par
+
+本次尝试的结果为：
+
+\begin{center}
+\begin{supertabular}{C{1.6cm}|C{2cm}|C{2cm}|C{1.7cm}|C{2cm}|C{2cm}}
+\hline
+dataset & Genome Fraction (\%) & Duplication Ratio & NGA50 & Mis-Assemblies & Mismatches Per 100kbp\\
+\hline
+data1 & 97.056 & 1.9572 & 9028.8 & 2.0 & 0\\
+\hline
+data2 & 87.198 & 1.6496 & 8067.8 & 0.0 & 0\\
+\hline
+data3 & 97.33 & 1.8888 & 8939.8 & 0.0 & 0\\
+\hline
+data4 & / & / & 0 & / & /\\
+\hline
+\end{supertabular}
+\end{center}
+\par
+
+其中data4效果太差NGA50为0，因为data4跑出来最长串只有三万长度左右。data1到data3的效果也并不是很好，应当尝试改进算法。\par
+
+\subsubsection{2.2.2\ 尝试二：长序列通过短序列扩展}
+
+由尝试一的结果可以看出尝试一有很大问题。对尝试一分析得到一中可能的错误：两个长序列进行合并（try\_merge）时，由于只有两个序列进行合并，它们之间的错误没有办法进行投票，因为只有两个序列，所以我选择的方法是直接选取一条序列做结果。而不断拼接下去这个错误率会累积起来从而使得拼接时错误率高到阈值阻止拼接。\par
+
+通过以上分析也可以得知，短序列匹配到长序列上的信息非常准确，可以信任这些信息，并且认为，通过短序列联系起来的所有长序列都在最终结果序列上。\par
+
+基于以上认知我设计了新的算法，枚举每一条未被访问过的长序列，维护一个长序列的集合，同时维护短序列的一个小根堆，短序列通过长序列被加入堆中且只被加入一次，堆按照短序列对长序列匹配信息的汉明距离排序。当堆不为空时，取出汉明距离最小的短序列，枚举短序列匹配的所有长序列，将所有未访问的长序列加入到长序列的集合中，同时把每个被加入的长序列匹配的所有未访问的短序列放入到小根堆中。如此一直进行下去就能将依靠匹配信息互相联系起来的长短序列求出。其中，长序列之间的位移关系与尝试一类似，这里不再赘述。最终，结果序列由长序列集合投票得到结果。\par
+
+全部代码见\textbf{Assemble2.py}。\par
+
+\begin{center}
+\begin{supertabular}{C{1.6cm}|C{2cm}|C{2cm}|C{1.7cm}|C{2cm}|C{2cm}}
+\hline
+dataset & Genome Fraction (\%) & Duplication Ratio & NGA50 & Mis-Assemblies & Mismatches Per 100kbp\\
+\hline
+data1 & 97.056 & 2.0002 & 9120.0 & 2.0 & 0\\
+\hline
+data2 & 97.056 & 2.0002 & 9120.0 & 2.0 & 0\\
+\hline
+data3 & 97.33 & 2.0 & 9733.0 & 0.0 & 0\\
+\hline
+data4 & 76.9518 & 1.978 & 59674.0 & 1.0 & 0\\
+\hline
+\end{supertabular}
+\end{center}
+\par
+
+可以看到data3效果较好，data4有了效果，data1与data2稍微变好了一些，但还是效果太差。\par
+
+\subsubsection{2.2.3\ 尝试三：修复匹配信息}
+
+观察尝试二的输出长度发现，只有8个序列，其中两两相等，所以一共只输出了4个等价序列。但是为什么NGA50还能高于9000呢？这说明参考序列中存在两个序列非常的相似，相似程度可以达到90\%左右。例如，data1中短序列错误率为0，可是匹配信息却出现了不同：\par
+
+report\_2.png\par
+
+因此，存在非常相似的短序列，短序列错误率为0告诉我们其中一部分短序列不应该匹配这条长序列。此时不应该通过投票来决定长串此位置是什么。而是让较少的部分不来匹配这条长序列。\par
+
+同时，我在\textbf{Assemble3.py}中进行了一些尝试，发现改进效果仍然不好
+
+
+
+实现思路有两种，DFS版本（深度优先搜索）和BFS版本（广度优先搜索）。下面是DFS版本的伪代码。\par
+
+\begin{breakablealgorithm}
+\caption{Hungarian}
+\label{alg:Framwork}
+\begin{algorithmic}[1]
+    \Require $G=(V=(X,Y),E)$
+    \Ensure $maxmatch,match$
+    \Procedure {Find}{u}
+        \For {$v\in Y, (u,v)\in E$}
+            \If {$visited[v] = False$}
+                \State $visited[v] \gets True$
+                \If {($match[v] = -1$) or (Find($match[v]$) $= True$)}
+                    \State $match[v] \gets u$, $match[u] \gets v$
+                    \State \Return $True$
+                \EndIf
+            \EndIf
+        \EndFor
+        \State \Return $False$
+    \EndProcedure
+    \Procedure {Hungary}{$X,Y,E$}
+        \State $maxmatch \gets 0, match \gets -1$
+        \For {$u \in X$}
+            \If {$match[u] = -1$}
+                \State $visited \gets False$
+                \If {Find($u$)}
+                    \State $maxmatch \gets maxmatch+1$
+                \EndIf
+            \EndIf
+        \EndFor
+        \State \Return $maxmatch,match$
+    \EndProcedure
+  \end{algorithmic}
+\end{breakablealgorithm}
+
+DFS版本通过函数递归隐式地调用了一个栈来保存访问过程经过的节点，而BFS 版本则可以显示地使用栈来记录访问过程经过的节点。两种版本思想一致，时间复杂度一致，故不再给出BFS 版本的伪代码。就运行时间而言，DFS 版本因为递归的形式会稍微慢于BFS版本。\par
+
+\subsubsection{2.2.3\ 时间复杂度}
+
+因为每一次寻找增广轨最差情况会访问所有的边，即一次$Find$过程时间复杂度$O(E)$，而最多增广点数次，即$O(V)$，故时间复杂度$O(VE)$。\par
+
+同时由于上述时间复杂度是最差情况，应用中往往会运行快一些。\par
+
+\subsection{2.3\ 转换为最大流问题}
+
+对于二分图的最大匹配，可以对问题进行转换，使其成为最大流问题模型。\par
+
+具体为新增源点$S$和汇点$T$，$S$向点集$X$中所有点连容量为$1$的边，$Y$中所有点向$T$连容量为$1$的边，$X$与$Y$之间的原图中的边都改为$X$向$Y$的单向边，且容量为$1$。此时如果对$S$与$T$之间求最大流，可以发现，流量即为最大匹配数。\par
+
+二分图中的匹配对于点的限制是：每个顶点最多被一条边覆盖，多于一条边则不是匹配。而新建的网络流模型对于点（除了源点和汇点）的流量平衡的限制是：每个$X$中点最多有1的流量，因此只会与$Y$中一个点连通，同理$Y$中点只会被连一次。这两个限制是等价的，因此求最大匹配即为求新的网络流模型的最大流。\par
+
+将其转换为最大流问题后，就可以由经典的解决最大流问题的算法来解决，如Dinic、ISAP等，网络流问题及其解决算法这里不再赘述。\par
+
+\subsection{2.4\ 应用}
+
+\subsubsection{2.4.1\ NOI2009 变换序列}
+
+\textbf{题目大意}
+
+给定长度为$N$，定义两个数字$x,y$的距离为$D(x,y)=\min {|x-y|,N-|x-y|}$，$0\le x,y \le N-1$。定义一个排列$\{T_i\}$为变换序列，它可以将$i$变为$T_i$（即进行置换）。给出每个$i$ 与$T_i$的距离，求出满足距离限制的字典序最小的变换序列。\par
+
+\textbf{解题思路}
+
+若$i$与$T_i$的距离为$D_i$，则在变换序列中，$T_i$可能的取值为$(i+D_i)\mod N$和$(i+N-D_i)\mod N$。为了保证$\{T_i\}$是一个排列，$\{T_i\}$应当是两两不同的。于是我们可以建图，二分图的$X$集为$N$个点，代表变换前的$0$至$N-1$，二分图的$Y$集也为$N$个点，代表变换后$T_i$取值$0$只至$N-1$，则$X$中代表$i$的点向$Y$中的以距离$D_i$变换之后的两个值对应的两个点连边（可能是同一个点）。这样当二分图最大匹配为$N$时变换序列存在。\par
+
+为了使得变换序列的字典序最小，$X$中的点连出的边应当按$Y$中点编号从小到大排序，这样每个$X$点会优先匹配编号最小的$Y$点。同时，贪心地从大到小枚举$X$点，这样一开始时靠后的$X$点首先选择了尽量小的$Y$点，当枚举到靠前的$X$点时，这些点会优先选择更小的$Y$点，从而在必要时影响到靠后$X$点的匹配状态。而为了使得字典序最小，靠前的$X$点应当尽量匹配较小的$Y$点。因此这样贪心是正确的。\par
+
+\subsubsection{2.4.2\ ZJOI2009 假期的宿舍}
+
+\textbf{题目大意}
+
+$n$个学生，一些人是本校学生，有自己的床，另外一些人不是本校学生，前来看望同学。已知同学之间的认识关系，哪些是本校学生，本校学生是否回家，每个人都只能睡自己的床或认识的人的床。询问是否存在一种方案使得不回家的本校学生和来看他们的非本校学生都有地方住。\par
+
+\textbf{解题思路}
+
+建二分图，$X$集代表所有需要床的人，数量为不回家的本校学生和来看他们的非本校学生人数。$Y$集代表所有床，数量为本校学生的数量。如果一个人$a$认识一个本校学生$b$，则$X$中代表$a$ 的点与$Y$中代表$b$的床的点之间连边。当最大匹配为不回家的本校学生和来看他们的非本校学生总人数时，方案存在。\par
+
+
+\newpage
+\section{3\ 一般图最大匹配问题}
+
+\subsection{3.1\ 问题模型}
+
+给定一张图$G=(V,E)$，求最大匹配数。\par
+
+\subsection{3.2\ 带花树算法 Blossom Algorithm}
+
+一般图与二分图的一个不同点是，一般图中可能出现奇环。这使得我们无法像二分图一样对交错轨取反。如图：\par
+
+\begin{center}
+\includegraphics{pictures/1.pdf}\par 图1 %[width=5.5in]
+\end{center}
+
+图中粗边为匹配边，取反之后两条匹配边覆盖了同一个点，这是不合法的。同理，不合法的路径取反之后可能会变的合法。\par
+
+\subsubsection{3.2.1\ 算法思想}
+
+带花树算法首先将一般图当做二分图来寻找最大匹配，即不断寻找增广轨。每次枚举一个非饱和点$root$，从$root$开始DFS寻找交错轨，这生成了一棵DFS树。同时记录已访问点的奇偶性为到达此点时路径长度的奇偶性，根节点$root$因为路径长度为0，所以设为偶点。\par
+
+与匈牙利算法寻找增广轨的过程相似。设当前DFS访问到的点为偶点$u$，枚举与其相连的点$v$：\par
+
+如果$v$未被访问过，若$v$是非饱和点，则找到了一条增广轨；否则从$v$设为奇点，并从与其匹配的点（偶点）开始DFS。\par
+如果$v$已被访问过，则DFS过程中找到了一条非树边，出现了环。\par
+如果非树边相连两点的奇偶性不同，则找到了一个偶环，可以忽略，因为此时的图仍为二分图，寻找增广轨的过程是正确的（即为匈牙利算法）。 否则，找到了一个奇环，将这个奇环缩为一朵\textbf{花}（blossom，即为一个\textbf{新点}），放到非树边连接的两点的最近公共祖先的位置，其它连向环的边全部连向这个新点，原来的奇环称作一个\textbf{旧环}。之后再在新图中重新寻找增广轨。\par
+
+找到增广轨后，对其取反，做法是对增广轨上的边取反，如果遇到花，则在花的内部将连接旧环外部的点到最近公共祖先的两条路径中以匹配边开始的路径（即偶数长度的那一条路径）取反。由于花存在嵌套关系，对花的取反也要递归进行。\par
+
+\begin{center}
+\includegraphics[width=3in]{pictures/2.pdf}\par 图2 %
+\end{center}
+
+下面证明算法的正确性。\par
+
+思考奇环的两种情况，奇点连向奇点和偶点连向偶点。对于奇点连向奇点，这是不可能出现的，因为在上述DFS过程中，奇点被访问时，与其匹配的偶点一定也会被访问，即偶点是由树中的奇点拉入的。而由于DFS过程中要保证当前匹配的正确性，两个奇点不会拉入同一个偶点，所以奇点不会连向奇点。\par
+
+那么出现环的情况只可能是找到了连接两个偶点的非树边。再考虑DFS的过程，偶点被奇点拉入，所以DFS过程中，分叉的地方只有偶点，所以DFS过程中找到的非树边连接的两个偶点$a,b$，他们的最近公共祖先$c=LCA(a,b)$一定是一个偶点，那么进行之前所说的将奇环缩为一朵花后，代表这朵花的点$c$应该是偶点。它可以分叉，连向一些奇点而不与这些奇点形成匹配边，相当于一个真正的偶点，同时这个环中的所有点对于环外的点来说也可以视为偶点。\par
+
+需要证明这么缩点的正确性。主要是证明，缩点之前和缩点之后的图是否有增广轨的情况是相同的。\par
+
+设原图为$G$，缩点之后得到的新图为$G'$，证明缩点之前和缩点之后的图是否有增广轨的情况相同可以拆分为两部分：$G$存在增广轨\ $ \Rightarrow G'$存在增广轨；$G'$存在增广轨\ $\Rightarrow$ $G$ 存在增广轨。这两个命题分别等价于$\neg G'$存在增广轨\ $\Rightarrow$ $\neg G$ 存在增广轨，和，$\neg G$存在增广轨\ $\Rightarrow$ $\neg G'$存在增广轨。\par
+
+\textbf{$G$存在增广轨\ $\Rightarrow$ $G'$存在增广轨}
+
+之前已经讨论过，非树边连接的两个偶点$a,b$的最近公共祖先$c=LCA(a,b)$是一个偶点。那么从树根$root$到$c$的路径是一条连接两个偶点的交错轨，于是对这条交错轨取反后仍是合法的且匹配数没有变。设图$G$和$G'$对这条交错轨取反后的图为$G_r,G_r'$。\par
+
+如果$G$存在增广轨，说明$G$中匹配不是最大的，那么$G_r$的匹配也不是最大的。根据增广轨定理，$G_r$中存在增广轨。\par
+
+设$G_r$中增广轨为$P$，若$P$没有经过旧环，则$G_r'$也存在同样的一条增广轨，又因为$G'$与$G_r'$匹配大小相同，$G'$也存在增广轨。\par
+
+若$P$经过了旧环，则改变$P$，使其在$G_r$中到达旧环时直接走至$c$。此时因为对$root$到$c$路径进行了取反，$c$变为了非饱和点，此时的$P$也是一条合法的增广轨。这条新的增广轨在$G_r'$ 中相当于直接走到$c$，并产生了一条合法的增广轨。又因为$G'$与$G_r'$匹配大小相同，$G'$也存在增广轨。\par
+
+
+\textbf{$G'$存在增广轨\ $\Rightarrow$ $G$存在增广轨}
+
+如果$G'$中存在增广轨$P$，且$P$没有经过新点，那么$G$中同样存在相同的增广轨$P$。\par
+
+如果$G'$中的增广轨$P$经过了新点，那么设一条边$e_1=(u,c)$与新点$c$匹配，另一条边$e_2=(c,v)$为$P$上与$c$相邻但不匹配的边，两条边不一定同时存在，但这不影响证明。由于$G'$ 中与$c$ 匹配的点一定是DFS 树中$c$ 的父节点（$c$为偶点），所以$u$为$c$的父节点，而$v$为旧环上与某一点$w$ 相连的点。而在旧环上，$w$到$c$有两条路径，长度一奇一偶，因为在$G'$ 中，旧环上的所有点都是偶点，即点$c$ 和$w$都是偶点。所以在图$G$中，可以将$P$中从$u$到$c$ 的路径改为从奇点$u$ 连向偶点$c$ 后，走偶长度的路径到达偶点$w$，再到达奇点$v$，从而成为$G$ 中一条合法的增广轨。这也与上述算法中增广过程相对应。\par
+
+\subsubsection{3.2.2\ 实现思路}
+
+从证明过程中可以看出，如果存在以非饱和点$root$为端点的增广轨$P$，那么遇到奇环对奇环缩点之后的新图中，增广轨仍然存在且仍以$root$为端点，所以缩点之后应该继续DFS。\par
+
+在找到奇环时，为了实现方便，不必真正的重新建图，而是可以利用并查集维护点属于哪朵花。除了记录匹配状态，还要用链表维护花的奇环。\par
+
+算法对于每个非饱和点进行BFS，遇到奇环就进行缩点将花缩为一个点，具体需要将环中的点使用并查集并在一起，祖先设置为$lca$，将环上所有的奇点标记成偶点并加入BFS队列（因为它们之前作为奇点直接选择了与其匹配的偶点，从而没有BFS），同时用$previous$数组与$match$数组结合形成一个双向列表记录旧环。\par
+
+\begin{breakablealgorithm}
+\caption{Blossom}
+\label{alg:Framwork}
+\begin{algorithmic}[1]
+    \Require $G=(V,E)$
+    \Ensure $maxmatch,match$
+    \Procedure {Change}{$u,v,lca$}
+        \While {Ancestor($u$)$\ne lca$ }
+            \State $previous[u] \gets v$,$match\_of\_u \gets match[u]$
+            \If {$color[match\_of\_u] = 1$}
+                \State $color[match\_of\_u] \gets 0$, $queue$ push $match\_of\_u$
+            \EndIf
+            \If {Ancestor($match\_of\_u$) $= match\_of\_u$}
+                \State $father[match\_of\_u] \gets lca$
+            \EndIf
+            \If {Ancestor($u$)$ = u$}
+                \State $father[u] \gets lca$
+            \EndIf
+            \State $v \gets match\_of\_u, u \gets previous[v]$
+        \EndWhile
+    \EndProcedure
+    \Procedure {Find}{$root$}
+        \State $color \gets -1, father \gets 0, previous \gets 0$, clear $queue$
+        \State $queue$ push $u$, $color[root] \gets 0$
+        \While {$queue$ not empty}
+            \State $u \gets queue$'s top, pop $queue$
+            \For {$v \in V, (u,v) \in E$}
+                \If {$color[v] = -1$}
+                    \State $previous[v] \gets u$, $color[v] \gets 1$
+                    \If {$match[v] = -1$}
+                        \State $now \gets v$
+                        \While {$now$}
+                            \State $pre \gets previous[now]$, $match\_of\_pre \gets match[pre]$
+                            \State $match[pre] \gets now$, $match[now] \gets pre$
+                            \State $now \gets match\_of\_pre$
+                        \EndWhile
+                        \State \Return $True$
+                    \EndIf
+                    \State $color[match[v]] \gets 0$, $queue$ push $match[v]$
+                \ElsIf{$color[v] = 0, $Ancestor($u$)$ \ne $Ancestor($v$)}
+                    \State Change($u,v,$LCA($u,v$)),Change($v,u,$LCA($u,v$))
+                \EndIf
+            \EndFor
+        \EndWhile
+        \State \Return $False$
+    \EndProcedure
+    \Procedure {Blossom}{$V,E$}
+        \State $maxmatch \gets 0, match \gets -1$
+        \For {$u \in V$}
+            \If {$match[u] = -1$}
+                \If {Find($u$)}
+                    \State $maxmatch \gets maxmatch+1$
+                \EndIf
+            \EndIf
+        \EndFor
+        \State \Return $maxmatch,match$
+    \EndProcedure
+  \end{algorithmic}
+\end{breakablealgorithm}
+
+
+\subsubsection{3.2.3\ 时间复杂度}
+
+一次寻找增广轨的时间为$O(n^2)$。最多进行$O(n)$次增广，时间复杂度为$O(n^3)$。
+
+
+\subsection{3.4\ 应用}
+
+\subsubsection{3.4.1\ UOJ79 一般图最大匹配}
+
+\textbf{题目大意}
+
+$n$个人组成两人小队，每个人最多属于一个小组。现在已知两个人是否愿意组成小队。询问最多产生多少个小组。\par
+
+\textbf{解题思路}
+
+建图，如果两个人$u,v$愿意组成小队，则在图中连无向边$(u,v)$，对图求最大匹配即可。\par
+
+\subsubsection{3.4.2\ ZJU3316 Game}
+
+\textbf{题目大意}
+
+有$N$个棋子在棋盘上，$2$个人轮流拿走一个棋子，第一步可以拿任意一个，而之后每一步必须拿上一步拿走的棋子曼哈顿长度$L$以内的棋子，询问后手是否能赢。\par
+
+\textbf{解题思路}
+
+把每一个棋子与周围距离为$L$的棋子都连上边，形成一些联通块。易知，一轮游戏只能在某一个联通块里开始直到结束。那么，如果有一个联通块不是完美匹配，先手就可以第一步走那个非饱和点，后手不论怎么走，都必然走到一个饱和点上。先手可以顺着交错轨走，最后后手必然没有路可走，因为如果还有路可走，这会形成增广轨，必然有更大的匹配，这与完美匹配矛盾。即判断最大匹配是否为完美匹配。\par
+
+
+\subsubsection{3.4.3\ HDU3446 daizhenyang's chess}
+
+\textbf{题目大意}
+
+有一个$R*C$的棋盘，棋盘上有一些格子是幸运的格子，棋盘上只有一个棋子。棋子有一定的行动范围。两个人轮流走，每个人可以移动棋子到没被走过的幸运的格子上。询问先手是否能赢。\par
+
+\textbf{解题思路}
+
+把所有行动范围内的幸运格子之间的边连上，将棋子所在的格子去掉，直接求一次最大匹配。在填上棋子所在的格子求一次最大匹配。如果第二次的结果比第一次大，说至少明存在一条增广轨，且增广轨的起点为棋子所在的格子，那么沿着这条增广轨走下去，最后后手必然没有路可走。即求两遍最大匹配。\par
+
+
+\newpage
+\section{4\ 附录}
+
+
+\subsection{4.1\ NOI2009 变换序列\ 代码}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+#define Rep(i,l,r) for(i=(l);i<=(r);i++)
+#define Rev(i,r,l) for(i=(r);i>=(l);i--)
+typedef long long ll;
+int CH, NEG;
+template <typename TP>inline void read(TP& ret) {
+    ret = NEG = 0; while (CH=getchar(), CH<'!');
+    if (CH == '-') NEG = true, CH = getchar();
+    while (ret = ret*10+CH-'0', CH=getchar(), CH>'!');
+    if (NEG) ret = -ret;
+}
+template <typename TP>inline void reads(TP& ret) {
+    while (ret=getchar(), ret<'!');
+    while (CH=getchar(), CH>'!');
+}
+template <typename TP>inline void reads(TP *ret) {
+    ret[0]=0;while (CH=getchar(), CH<'!');
+    while (ret[++ret[0]]=CH,CH=getchar(),CH>'!');
+}
+
+#define  kN  20010LL
+int n, m;
+int match[kN] = {0}, edge[kN][2] = {0};
+int visited[kN] = {0};
+int ans[kN] = {0};
+int tim = 0;
+
+bool Find(int u) {
+    for (int v,i=0;i<2;i++)
+        if (visited[v=edge[u][i]]!=tim)
+            if (visited[v]=tim,!match[v]||dfs(match[v]))
+                return match[v]=u,true;
+    return false;
+}
+int main() {
+    int i, k, x, y;
+    read(n);
+    Rep (i,1,n) {
+        if (read(k),k>n/2) { puts("No Answer");goto END; }
+        x=(i-1+k)%n+1,y=(i-k+n-1)%n+1;
+        if (x > y) std::swap(x,y);
+        edge[i][0] = x+n, edge[i][1]=y+n; // 连边，按编号排序
+    }
+    Rev (i,n,1) // Hungarian 从 n 到 1 枚举
+        if (++tim,!Find(i)) { puts("No Answer");goto END; }
+    Rep (i,1,n) ans[match[i+n]]=i;
+    Rep (i,1,n) if (!ans[i]) { puts("No Answer");goto END; }
+    Rep (i,1,n) printf("%d%c",ans[i]-1,i==n?'\n':' ');
+    END: getchar(),getchar();
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{4.2\ UOJ79 一般图最大匹配\ 代码}
+
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+#define Rep(i,l,r) for(i=(l);i<=(r);i++)
+#define rep(i,l,r) for(i=(l);i< (r);i++)
+#define Rev(i,r,l) for(i=(r);i>=(l);i--)
+#define rev(i,r,l) for(i=(r);i> (l);i--)
+#define Each(i,v)  for(i=v.begin();i!=v.end();i++)
+#define r(x)   read(x)
+typedef long long ll ;
+typedef double lf ;
+int CH , NEG ;
+template <typename TP>inline void read(TP& ret) {
+    ret = NEG = 0 ; while (CH=getchar() , CH<'!') ;
+    if (CH == '-') NEG = true , CH = getchar() ;
+    while (ret = ret*10+CH-'0' , CH=getchar() , CH>'!') ;
+    if (NEG) ret = -ret ;
+}
+
+namespace MAX_MATCH {
+
+#define  kN  520LL
+#define  kM  124760LL
+#define  t(p) e[0][p]
+#define  n(p) e[1][p]
+#define  s(u) st[u]
+int n, e[2][kM<<1], st[kN] = {0}, te = 2;
+inline void Add(int u,int v) {++te;t(te)=v,n(te)=s(u),s(u)=te;++te;t(te)=u,n(te)=s(v),s(v)=te;}// 加 边
+int fa[kN], pre[kN], Tim = 0, vis[kN], match[kN], col[kN];
+inline int getAnc(int u) { return fa[u]?fa[u]=getAnc(fa[u]):u; } // 并查集求代表点
+inline int getLCA(int u,int v) { // 求最近公共祖先
+    static int vis[kN], Tim;
+    for (++Tim;;std::swap(u,v)) if (u) {
+        if (u=getAnc(u), vis[u] == Tim) return u;
+        else if (vis[u]=Tim, match[u]) u = getAnc(pre[match[u]]);
+        else u = 0;
+    }
+    return u;
+}
+std::deque<int>q;
+inline void Change(int u,int v,int lca) { // 缩点，并构建链表
+    while(getAnc(u) != lca) {
+        pre[u] = v; // 存储奇环的连接信息
+        int pu = match[u];
+        if (col[pu] == 1) { col[pu] = 0; q.push_back(pu); } // 将奇点变为偶点，并放入队列
+        if (getAnc(pu) == pu) fa[pu] = lca; // 在并查集中将pu 并入lca
+        if (getAnc(u) == u) fa[u] = lca; // 在并查集中将u 并入lca
+        v = pu; u = pre[v];
+    }
+}
+inline bool Find(int u) { // 寻找增广轨
+    int i, p, v, lca, pt, t, now;
+    Rep (i,1,n) col[i] = -1, fa[i] = 0;
+    q.clear();
+    q.push_back(u); col[u] = 0;
+    while (!q.empty()) // u 为偶点
+        for (u=q.front(), q.pop_front(), p=s(u); p; p=n(p))
+            if (v=t(p),col[v] == -1) { // 枚举与其相连的点v
+                pre[v] = u, col[v] = 1;
+                if (!match[v]) { // v 是非饱和点，找到了增广轨
+                    now = v;
+                    while (now) { // 从v 到根的路径取反
+                        t = pre[now], pt = match[t];
+                        match[t] = now, match[now] = t;
+                        now = pt;
+                    }
+                    return true;
+                }
+                col[match[v]] = 0;
+                q.push_back(match[v]);// 否则v 是奇点，将其匹配的偶点入队
+            } else if (col[v]==0 && getAnc(u)!=getAnc(v)) { // 找到了奇环，缩点
+                lca = getLCA(u,v);
+                Change(u,v,lca);
+                Change(v,u,lca);
+            }
+    return false;
+}
+inline void Blossom() { // Blossom
+    int ans = 0, i;
+    Rep (i,1,n) if (!match[i] && Find(i)) ans ++ ;
+    printf("%d\n", ans);
+    Rep (i,1,n) printf("%d ",match[i]);
+}
+
+}
+
+int main() {
+    int i, u, v, m;
+    using namespace MAX_MATCH;
+    r(n), r(m);
+    Rep (i,1,m)
+        r(u), r(v), Add(u,v);
+    Blossom();
+    END: getchar(), getchar();
+    return 0;
+}
+\end{lstlisting}
+
+\newpage
+\end{document}
+
+
+
+%\begin{center}
+%\includegraphics[width=5.5in]{pictures/1.png}\par 图1
+%\end{center}
