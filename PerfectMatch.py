@@ -1,3 +1,6 @@
+'''
+将A串（短串）匹配到B串（长串）上，找到levenshtein距离最小的位置
+'''
 import argparse
 import os
 import Levenshtein as leve
@@ -27,7 +30,7 @@ if __name__ == "__main__":
     mindis = -1
     minpos = 0
     for i in range(len(B)-len(A)+1):
-        dis = leve.distance(A,B[i:i+len(A)])
+        dis = leve.distance(A, B[i:i+len(A)])
         if mindis == -1 or dis < mindis:
             mindis = dis
             minpos = i

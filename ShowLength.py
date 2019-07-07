@@ -1,3 +1,6 @@
+'''
+展示fasta文件每一条序列的长度
+'''
 import argparse
 
 

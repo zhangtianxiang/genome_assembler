@@ -1,3 +1,6 @@
+'''
+单线程求出所有短串对所有长串的匹配信息
+'''
 import argparse
 import os
 import Levenshtein as leve

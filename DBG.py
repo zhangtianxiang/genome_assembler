@@ -1,5 +1,8 @@
 # -*- coding:utf-8 -*-
-# zhushanfeng@gmail.com
+'''
+最开始yy的DB图测试：效果极差
+后来对算法改进并用于修复Assemble的结果，见DBGComplate
+'''
 import numpy as np
 import sys
 

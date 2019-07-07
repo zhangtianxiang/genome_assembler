@@ -1,3 +1,6 @@
+'''
+将A集合（短串集合）匹配到B串（长串）上，使用汉明距离，每个串找最小距离位置，并为距离设定阈值
+'''
 import argparse
 import os
 import Levenshtein as leve

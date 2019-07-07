@@ -10,3 +10,5 @@ report/*
 !report/pictures/
 !report/report.tex
 !report/report.pdf
+*.fasta
+*.exe

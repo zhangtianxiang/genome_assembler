@@ -3,6 +3,8 @@
 使用DBG对结果串的两侧补全
 
 python一直在报段错误，只能写c++了
+
+DB图部分见DBGcpp.cpp，通过文件传输信息。
 '''
 import argparse
 import os
@@ -22,7 +24,7 @@ DEFAULT_PARAM_FILE = 'param.json'
 DEFAULT_LONG_FILE = 'long.fasta'
 DEFAULT_SHORT_1_FILE = 'short_1.fasta'
 DEFAULT_SHORT_2_FILE = 'short_2.fasta'
-DEFAULT_FIXED_LONG_FILE = 'long_repair.fasta' # 'fixed_long.fasta' # use repair
+DEFAULT_FIXED_LONG_FILE = 'long_repair.fasta'  # 'fixed_long.fasta' # use repair
 DEFAULT_EXTEND_FILE = 'extend_ans_v2_repair_17w.fasta'
 
 ARGS = None
@@ -105,7 +107,7 @@ def generate_graph(datasets):
     def add_edge(u, v):
         pre = out_edges[u][v]
         if pre == 0:  # Threshold
-            out_edges[u].update([v]) # flag:这句话为了效率暂时放在这里！
+            out_edges[u].update([v])  # flag:这句话为了效率暂时放在这里！
             g[u].append(v)
 
     def generate_from_dna(dna):
