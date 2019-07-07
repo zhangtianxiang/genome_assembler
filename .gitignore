@@ -6,3 +6,7 @@ data2/
 data3/
 data4/
 .DS_Store
+report/*
+!report/pictures/
+!report/report.tex
+!report/report.pdf
